@@ -1,31 +1,54 @@
+/* General body styles */
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+}
+
 .App {
   text-align: center;
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
+.App-header {
+  background-color: #282c34;
+  padding: 10px 0; /* Reduced padding */
+  color: white;
 }
 
+/* Navbar styles */
+.navbar {
+  background-color: #343a40;
+  padding: 5px 10px; /* Reduced padding to make the navbar smaller */
+  box-shadow: 0 2px 2px -2px gray; /* Lighter shadow */
+}
+
+.navbar-brand {
+  font-size: 20px; /* Smaller font size for the brand */
+  font-weight: bold;
+  color: #ffffff;
+  text-transform: uppercase;
+}
+
+.navbar-nav .nav-link {
+  color: #ffffff;
+  font-size: 14px; /* Reduced font size for the links */
+  margin-right: 10px; /* Reduced space between nav links */
+}
+
+.navbar-nav .nav-link:hover {
+  color: #61dafb;
+}
+
+@media (max-width: 768px) {
+  .navbar-nav {
+    text-align: center;
+  }
+}
+
+/* App logo animation (if needed) */
 @media (prefers-reduced-motion: no-preference) {
   .App-logo {
     animation: App-logo-spin infinite 20s linear;
   }
-}
-
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
-}
-
-.App-link {
-  color: #61dafb;
 }
 
 @keyframes App-logo-spin {

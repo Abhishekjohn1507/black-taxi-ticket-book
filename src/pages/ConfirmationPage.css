@@ -1,0 +1,139 @@
+/* Global Styles */
+body {
+  font-family: 'Arial', sans-serif;
+  background-color: #f0f0f0;
+  padding: 20px;
+  margin: 0;
+}
+
+.container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+}
+
+/* Ticket Styling */
+.ticket {
+  width: 100%;
+  max-width: 900px; /* Increased width for landscape */
+  background-color: #fff;
+  border: 2px dashed #4CAF50; /* Dashed border like the example image */
+  padding: 30px;
+  border-radius: 20px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  position: relative;
+  overflow: hidden;
+  display: flex; /* Flexbox for landscape layout */
+  flex-direction: row; /* Horizontal layout */
+}
+
+/* Header Styling */
+.ticket-header {
+  text-align: center;
+  margin-bottom: 30px;
+  margin-right: 20px;
+  
+  padding-bottom: 20px;
+  flex: 1; /* Flex item */
+}
+
+.ticket-logo {
+  width: 120px;
+  margin-bottom: 10px;
+}
+
+.ticket-header h2 {
+  font-size: 32px;
+  color: #333;
+  font-weight: bold;
+  text-transform: uppercase;
+  margin-bottom: 10px;
+}
+
+.ticket-header p {
+  font-size: 18px;
+  color: #555;
+  text-transform: uppercase;
+  margin-top: 5px;
+}
+
+/* Ticket Details */
+.ticket-details {
+  margin-bottom: 40px;
+  flex: 2; /* Flex item */
+}
+
+.ticket-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 20px;
+  margin-bottom: 15px;
+  padding: 5px 0;
+  border-bottom: 1px dashed #ddd;
+}
+
+.ticket-row span:first-child {
+  font-weight: bold;
+  color: #333;
+  text-transform: uppercase;
+}
+
+.ticket-row span:last-child {
+  color: #555;
+}
+
+/* Footer */
+.ticket-footer {
+  text-align: center;
+  font-size: 14px;
+  color: #888;
+  margin-top: 20px;
+  border-top: 2px dashed #4CAF50;
+  padding-top: 15px;
+  flex: 1; /* Flex item */
+}
+
+.ticket-footer p {
+  margin: 5px 0;
+}
+
+.ticket-footer strong {
+  color: #333;
+}
+
+/* Print Button */
+.btn {
+  padding: 12px 24px;
+  font-size: 16px;
+  color: white;
+  background-color: #4CAF50; /* Green button as in the reference image */
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  margin-top: 20px;
+}
+
+.btn:hover {
+  background-color: #45a049;
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 600px) {
+  .ticket {
+    padding: 20px;
+    flex-direction: column; /* Stack items vertically on small screens */
+  }
+
+  .ticket-header h2 {
+    font-size: 24px;
+  }
+
+  .ticket-details p {
+    font-size: 16px;
+  }
+
+  .btn {
+    font-size: 14px;
+  }
+}
