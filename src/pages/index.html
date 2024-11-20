@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Taxi Booking Payment</title>
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+</head>
+<body>
+    <h1>Book Your Ride</h1>
+    <form id="bookingForm">
+        <label for="name">Name:</label>
+        <input type="text" id="name" name="name" required>
+        <label for="email">Email:</label>
+        <input type="email" id="email" name="email" required>
+        <label for="amount">Amount (₹):</label>
+        <input type="number" id="amount" name="amount" value="500" readonly>
+        <button type="button" id="bookNow">Book Now</button>
+    </form>
+
+    <script>
+        document.getElementById('bookNow').addEventListener('click', async () => {
+            const name = document.getElementById('name').value;
+            const email = document.getElementById('email').value;
+            const amount = document.getElementById('amount').value;
+
+            if (!name || !email) {
+                alert('Please fill all details');
+                return;
+            }
+
+            try {
+                // Fetch the order ID from the server
+                const response = await fetch('/create-order', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name, email, amount })
+                });
+
+                const { orderId, key } = await response.json();
+
+                const options = {
+                    key,
+                    amount: amount * 100, // Razorpay accepts amount in paise
+                    currency: "INR",
+                    name: "BlackCab",
+                    description: "Taxi Booking Payment",
+                    order_id: orderId,
+                    handler: async function (response) {
+                        // Payment success handler
+                        const paymentDetails = {
+                            razorpay_order_id: response.razorpay_order_id,
+                            razorpay_payment_id: response.razorpay_payment_id,
+                            razorpay_signature: response.razorpay_signature,
+                        };
+
+                        // Send payment details to the server
+                        const verifyResponse = await fetch('/verify-payment', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(paymentDetails)
+                        });
+
+                        const result = await verifyResponse.json();
+                        if (result.success) {
+                            alert('Payment Successful! Redirecting to ticket...');
+                            window.location.href = `/ticket?id=${result.bookingId}`;
+                        } else {
+                            alert('Payment verification failed. Please try again.');
+                        }
+                    },
+                    prefill: { name, email },
+                    theme: { color: "#3399cc" }
+                };
+
+                const rzp = new Razorpay(options);
+                rzp.open();
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Something went wrong. Please try again.');
+            }
+        });
+    </script>
+</body>
+</html>

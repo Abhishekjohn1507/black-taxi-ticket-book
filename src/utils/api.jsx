@@ -1,17 +1,37 @@
 import axios from 'axios';
 
-// const BASE_URL = 'http://localhost:5000/api';
+// Get the API URL from environment variables, fallback to localhost if not set
+const BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
 
-const BASE_URL = 'https://black-taxi-server.onrender.com/api'; // Replace this with your Render deployment URL
+// Create a Razorpay order
+export const createOrder = async (amount) => {
+  try {
+    const response = await axios.post(`${BASE_URL}/create-order`, { amount });
+    return response.data; // { orderId, key }
+  } catch (error) {
+    console.error('Error creating Razorpay order:', error);
+    throw error;
+  }
+};
 
-// const BASE_URL = 'https://nodejs-serverless-function-express-eight-pied.vercel.app/api'; // Replace this with your Render deployment URL
+// Verify the Razorpay payment
+export const verifyPayment = async (paymentDetails) => {
+  try {
+    const response = await axios.post(`${BASE_URL}/verify-payment`, paymentDetails);
+    return response.data; // { success, bookingId }
+  } catch (error) {
+    console.error('Error verifying payment:', error);
+    throw error;
+  }
+};
 
+// Submit booking data
 export const submitBooking = async (bookingData) => {
   try {
     const response = await axios.post(`${BASE_URL}/bookings`, bookingData);
-    return response.data; // The response contains booking details
+    return response.data; // Booking details
   } catch (error) {
     console.error('API Error:', error);
-    throw error; // Throw error so it can be handled in the component
+    throw error;
   }
 };

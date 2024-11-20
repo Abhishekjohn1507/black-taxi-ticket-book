@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { submitBooking } from '../utils/api';
+import { createOrder, verifyPayment } from '../utils/api'; // Update API calls for Razorpay
 
 const BookingPage = () => {
   const [formData, setFormData] = useState({
@@ -12,7 +12,7 @@ const BookingPage = () => {
     passengers: 1,
   });
   const [error, setError] = useState(null);
-  const [loading, setLoading] = useState(false); // Loading state
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   const handleChange = (e) => {
@@ -20,30 +20,74 @@ const BookingPage = () => {
     setFormData({ ...formData, [name]: value });
   };
 
+  const handlePayment = async (orderId, amount) => {
+    const options = {
+      key: process.env.REACT_APP_RAZORPAY_KEY_ID, // Use environment variable for Razorpay key ID
+      amount: amount * 100, // Convert amount to paise
+      currency: 'INR',
+      name: 'BlackCab',
+      description: 'Taxi Booking Payment',
+      order_id: orderId, // Razorpay order ID
+      handler: async (response) => {
+        try {
+          const paymentDetails = {
+            razorpay_order_id: response.razorpay_order_id,
+            razorpay_payment_id: response.razorpay_payment_id,
+            razorpay_signature: response.razorpay_signature,
+          };
+
+          const result = await verifyPayment(paymentDetails);
+
+          if (result.success) {
+            navigate('/confirmation', { state: { bookingDetails: result.booking } });
+          } else {
+            setError('Payment verification failed. Please try again.');
+          }
+        } catch (err) {
+          setError('An error occurred while verifying the payment.');
+          console.error(err);
+        }
+      },
+      prefill: {
+        name: formData.Name,
+        email: 'user@example.com', // Optional: Replace with the user's email
+        contact: '9999999999', // Optional: Replace with the user's contact number
+      },
+      theme: {
+        color: '#007bff',
+      },
+    };
+
+    const rzp = new window.Razorpay(options);
+    rzp.open();
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true); // Start loading
+    setLoading(true);
+    setError(null);
+
     try {
-      const result = await submitBooking(formData); // Call the API
-      setLoading(false); // Stop loading
-      navigate('/confirmation', { state: { bookingDetails: result.booking } });
+      // Create an order on the server
+      const result = await createOrder({ ...formData, amount: 500 }); // Example amount: ₹500
+      setLoading(false);
+
+      // Initiate payment
+      await handlePayment(result.orderId, result.amount);
     } catch (err) {
-      setLoading(false); // Stop loading
+      setLoading(false);
       console.error('Error during booking:', err);
       if (err.response) {
-        // Server error
         setError(err.response.data.message || 'Booking failed.');
       } else if (err.request) {
-        // Network error
         setError('Network error: Please check your internet connection.');
       } else {
-        // Unexpected error
         setError('Unexpected error occurred. Please try again.');
       }
     }
   };
 
-  // Inline CSS Styles (No changes)
+  // Styles remain unchanged
   const containerStyle = {
     maxWidth: '600px',
     margin: '0 auto',
@@ -108,18 +152,17 @@ const BookingPage = () => {
       <h2 style={titleStyle}>Book Your Ride</h2>
       {error && <p style={errorStyle}>{error}</p>}
       <form onSubmit={handleSubmit}>
-
-      <div style={formGroupStyle}>
-  <label style={labelStyle}>Name</label>
-  <input
-    type="text"
-    name="Name" // Match the state key
-    value={formData.Name} // Bind to the correct state property
-    onChange={handleChange}
-    style={inputStyle}
-    required
-  />
-</div>
+        <div style={formGroupStyle}>
+          <label style={labelStyle}>Name</label>
+          <input
+            type="text"
+            name="Name"
+            value={formData.Name}
+            onChange={handleChange}
+            style={inputStyle}
+            required
+          />
+        </div>
         <div style={formGroupStyle}>
           <label style={labelStyle}>Pickup Location</label>
           <input
@@ -183,7 +226,7 @@ const BookingPage = () => {
           onMouseOut={(e) => e.target.style.backgroundColor = buttonStyle.backgroundColor}
           disabled={loading}
         >
-          {loading ? 'Booking...' : 'Book Now'}
+          {loading ? 'Processing...' : 'Book Now'}
         </button>
       </form>
     </div>
